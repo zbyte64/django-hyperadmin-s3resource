@@ -1,3 +1,5 @@
+import os
+
 from hyperadmin.resources.storages.forms import UploadLinkForm
 
 from django import forms
@@ -14,7 +16,6 @@ def form_factory(fields):
 
 class S3UploadLinkForm(UploadLinkForm):
     def save(self, commit=True):
-        import os
         file_name = self.storage.get_valid_name(self.cleaned_data['name'])
         path = os.path.join(self.cleaned_data['upload_to'], file_name)
         overwrite = self.cleaned_data.get('overwrite', False)
@@ -48,7 +49,6 @@ from datetime import timedelta
 import base64
 import hmac
 import hashlib
-import os
 
 def _set_default_if_none(dict, key, default=None):
     if key not in dict:
@@ -61,7 +61,7 @@ ACCESS_KEY_ID       = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
 SECRET_ACCESS_KEY   = getattr(settings, 'AWS_SECRET_ACCESS_KEY', None)
 BUCKET_NAME         = getattr(settings, 'AWS_BUCKET_NAME', None)
 SECURE_URLS         = getattr(settings, 'AWS_S3_SECURE_URLS', False)
-BUCKET_URL          = getattr(settings, 'AWS_BUCKET_URL', ('https://' if SECURE_URLS else 'http://') + BUCKET_NAME + '.s3.amazonaws.com')
+BUCKET_URL          = getattr(settings, 'AWS_BUCKET_URL',  '%s%s.s3.amazonaws.com' % (('https://' if SECURE_URLS else 'http://'), BUCKET_NAME))
 DEFAULT_ACL         = getattr(settings, 'AWS_DEFAULT_ACL', 'public-read')
 DEFAULT_KEY_PATTERN = getattr(settings, 'AWS_DEFAULT_KEY_PATTERN', '${targetname}')
 DEFAULT_FORM_TIME   = getattr(settings, 'AWS_DEFAULT_FORM_LIFETIME', 36000) # 10 HOURS
@@ -75,7 +75,6 @@ class S3Backend(object):
         self.options.update(options)
         
         _set_default_if_none(self.options, 'url', self.get_target_url())
-        _set_default_if_none(self.options, 'determineName', self.get_determine_name())
         
         self.build_options()
         self.post_data = post_data
