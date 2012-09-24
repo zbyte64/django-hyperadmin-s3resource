@@ -1,5 +1,17 @@
 from hyperadmin.resources.storages.forms import UploadLinkForm
 
+from django import forms
+
+
+def form_factory(fields):
+    class GeneratedForm(forms.Form):
+        def __init__(self, **kwargs):
+            self.instance = kwargs.pop('instance', None)
+            self.storage = kwargs.pop('storage')
+            super(GeneratedForm, self).__init__(**kwargs)
+    GeneratedForm.base_fields.update(fields)
+    return GeneratedForm
+
 class S3UploadLinkForm(UploadLinkForm):
     def save(self, commit=True):
         import os
@@ -14,12 +26,15 @@ class S3UploadLinkForm(UploadLinkForm):
         url_maker = S3Backend()
         
         url_maker.update_post_params(targetpath=name, upload_to=self.cleaned_data['upload_to'])
-        #TODO make a link around this data and url_maker.get_target_url
-        url_maker.post_data
         
+        fields = dict()
+        for key, value in url_maker.post_data.iteritems():
+            fields[key] = forms.CharField(initial=value, widget=forms.HiddenInput)
+        fields['file'] = forms.FileInput()
+        form_class = form_factory(fields)
         
-        form_kwargs = {'initial':{'name':name, 'overwrite':overwrite}}
-        link = self.resource.get_create_link(form_kwargs=form_kwargs)
+        form_kwargs = {'initial':url_maker.post_data}
+        link = self.resource.get_create_link(form_kwargs=form_kwargs, form_class=form_class, url=url_maker.get_target_url())
         return link
 
 
@@ -39,6 +54,7 @@ def _set_default_if_none(dict, key, default=None):
     if key not in dict:
         dict[key] = default
 
+#TODO django-storages should make these variables accessible from the storage object
 
 # AWS Options
 ACCESS_KEY_ID       = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
