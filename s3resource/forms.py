@@ -31,7 +31,7 @@ class S3UploadLinkForm(UploadLinkForm):
         fields = dict()
         for key, value in url_maker.post_data.iteritems():
             fields[key] = forms.CharField(initial=value, widget=forms.HiddenInput)
-        fields['file'] = forms.FileInput()
+        fields['file'] = forms.FileField()
         form_class = form_factory(fields)
         
         form_kwargs = {'initial':url_maker.post_data}
