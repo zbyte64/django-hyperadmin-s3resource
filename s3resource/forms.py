@@ -59,7 +59,7 @@ def _set_default_if_none(dict, key, default=None):
 # AWS Options
 ACCESS_KEY_ID       = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
 SECRET_ACCESS_KEY   = getattr(settings, 'AWS_SECRET_ACCESS_KEY', None)
-BUCKET_NAME         = getattr(settings, 'AWS_BUCKET_NAME', None)
+BUCKET_NAME         = getattr(settings, 'AWS_STORAGE_BUCKET_NAME', None)
 SECURE_URLS         = getattr(settings, 'AWS_S3_SECURE_URLS', False)
 BUCKET_URL          = getattr(settings, 'AWS_BUCKET_URL',  '%s%s.s3.amazonaws.com' % (('https://' if SECURE_URLS else 'http://'), BUCKET_NAME))
 DEFAULT_ACL         = getattr(settings, 'AWS_DEFAULT_ACL', 'public-read')
