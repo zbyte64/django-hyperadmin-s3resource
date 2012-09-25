@@ -17,7 +17,11 @@ def form_factory(fields):
 class S3UploadLinkForm(UploadLinkForm):
     def save(self, commit=True):
         file_name = self.storage.get_valid_name(self.cleaned_data['name'])
-        path = os.path.join(self.cleaned_data['upload_to'], file_name)
+        upload_to = self.cleaned_data.get('upload_to', '')
+        if upload_to:
+            path = os.path.join(upload_to, file_name)
+        else:
+            path = file_name
         overwrite = self.cleaned_data.get('overwrite', False)
         if overwrite:
             name = path
@@ -35,7 +39,7 @@ class S3UploadLinkForm(UploadLinkForm):
         form_class = form_factory(fields)
         
         form_kwargs = {'initial':url_maker.post_data}
-        link = self.resource.get_create_link(form_kwargs=form_kwargs, form_class=form_class, url=url_maker.get_target_url())
+        link = self.resource.get_create_link(form_kwargs=form_kwargs, form_class=form_class, url=url_maker.get_target_url(), rel='direct-upload')
         return link
 
 
