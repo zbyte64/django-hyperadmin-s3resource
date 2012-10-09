@@ -8,7 +8,7 @@ from s3resource.views import S3UploadSuccessView
 
 class S3StorageResource(StorageResource):
     upload_link_form_class = S3UploadLinkForm
-    directupload_sucess_view = S3UploadSuccessView
+    directupload_success_view = S3UploadSuccessView
     
     def get_form_kwargs(self, item=None, **kwargs):
         kwargs = super(S3StorageResource, self).get_form_kwargs(item, **kwargs)
