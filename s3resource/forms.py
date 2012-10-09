@@ -1,4 +1,5 @@
 import os
+from urllib import urlencode
 
 from hyperadmin.resources.storages.forms import UploadLinkForm
 
@@ -29,16 +30,17 @@ class S3UploadLinkForm(UploadLinkForm):
             name = self.storage.get_available_name(path)
         
         redirect_to = self.request.build_absolute_uri(self.resource.get_directupload_success_url())
+        response_type = self.request.META.get('HTTP_ACCEPT', None)
+        if response_type:
+            params = {'response_type': response_type}
+            redirect_to = '%s?%s' % (redirect_to, urlencode(params))
+        
         url_maker = S3Backend()
         url_maker.update_post_params(targetpath=name, upload_to=self.cleaned_data['upload_to'], redirect_to=redirect_to)
         
         fields = dict()
         for key, value in url_maker.post_data.iteritems():
             fields[key] = forms.CharField(initial=value, widget=forms.HiddenInput)
-        
-        response_type = self.request.META.get('HTTP_ACCEPT', '')
-        if response_type:
-            fields['response_type'] = forms.CharField(initial=response_type, widget=forms.HiddenInput)
         
         fields['file'] = forms.FileField()
         form_class = form_factory(fields)
