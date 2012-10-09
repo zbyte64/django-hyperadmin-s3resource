@@ -15,10 +15,6 @@ def form_factory(fields):
     return GeneratedForm
 
 class S3UploadLinkForm(UploadLinkForm):
-    def __init__(self, **kwargs):
-        self.resource = kwargs.pop('resource')
-        super(S3UploadLinkForm, self).__init__(**kwargs)
-    
     def save(self, commit=True):
         file_name = self.storage.get_valid_name(self.cleaned_data['name'])
         upload_to = self.cleaned_data.get('upload_to', '')

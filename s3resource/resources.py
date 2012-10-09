@@ -10,11 +10,6 @@ class S3StorageResource(StorageResource):
     upload_link_form_class = S3UploadLinkForm
     directupload_success_view = S3UploadSuccessView
     
-    def get_form_kwargs(self, item=None, **kwargs):
-        kwargs = super(S3StorageResource, self).get_form_kwargs(item, **kwargs)
-        kwargs['resource'] = self
-        return kwargs
-    
     def get_extra_urls(self):
         urlpatterns = super(S3StorageResource, self).get_extra_urls()
         
