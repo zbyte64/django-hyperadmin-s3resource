@@ -15,6 +15,10 @@ def form_factory(fields):
     return GeneratedForm
 
 class S3UploadLinkForm(UploadLinkForm):
+    def __init__(self, **kwargs):
+        self.resource = kwargs.pop('resource')
+        super(S3UploadLinkForm, self).__init__(**kwargs)
+    
     def save(self, commit=True):
         file_name = self.storage.get_valid_name(self.cleaned_data['name'])
         upload_to = self.cleaned_data.get('upload_to', '')
@@ -28,9 +32,9 @@ class S3UploadLinkForm(UploadLinkForm):
         else:
             name = self.storage.get_available_name(path)
         
+        redirect_to = self.resource.get_directupload_success_url()
         url_maker = S3Backend()
-        
-        url_maker.update_post_params(targetpath=name, upload_to=self.cleaned_data['upload_to'])
+        url_maker.update_post_params(targetpath=name, upload_to=self.cleaned_data['upload_to'], redirect_to=redirect_to)
         
         fields = dict()
         for key, value in url_maker.post_data.iteritems():
@@ -46,6 +50,7 @@ class S3UploadLinkForm(UploadLinkForm):
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.encoding import iri_to_uri
 from django.utils import simplejson as json
 from urllib import quote_plus
 from datetime import datetime
@@ -122,6 +127,8 @@ class S3Backend(object):
         self.post_data['policy'] = self.policy
         self.post_data['signature'] = self.signature
         self.post_data['key'] = self.options['targetpath']
+        if self.options['redirect_to']:
+            self.post_data['redirect'] = self.options['redirect_to']
     
     def build_conditions(self):
         conditions = list()
@@ -135,12 +142,14 @@ class S3Backend(object):
         #make s3 happy with uploadify
         #conditions.append(['starts-with', '$targetname', '']) #variable introduced by this package
         #conditions.append(['starts-with', '$targetpath', path])
-        conditions.append({'success_action_status': '200'})
+        #conditions.append({'success_action_status': '200'})
         
         #real conditions
         conditions.append(['eq', '$key', path])
         conditions.append({'bucket': self.post_data['bucket']})
         conditions.append({'acl': self.post_data['acl']})
+        if self.options['redirect_to']:
+            conditions.append({'redirect': self.options['redirect_to']})
         return conditions
     
     def build_post_policy(self, expiration_time):
@@ -148,10 +157,14 @@ class S3Backend(object):
                   'conditions': self.conditions,}
         return json.dumps(policy)
     
-    def update_post_params(self, targetpath, upload_to):
+    def update_post_params(self, targetpath, upload_to, redirect_to=None):
         #instruct s3 that our key is the targetpath
         self.options['targetpath'] = targetpath
         self.options['upload_to'] = upload_to
+        
+        if redirect_to:
+            redirect_to = iri_to_uri(redirect_to)
+        self.options['redirect_to'] = redirect_to
         self.build_post_data()
         #params.update(self.post_data)
         #params['key'] = params['targetpath']
