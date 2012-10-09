@@ -4,6 +4,7 @@ from django.views.generic import View
 from hyperadmin.resources.views import ResourceViewMixin
 from hyperadmin.resources.storages.views import BoundFile, StorageMixin
 
+
 class S3UploadSuccessView(StorageMixin, ResourceViewMixin, View):
     '''
     Redirects to the appropriate REST path based on the key

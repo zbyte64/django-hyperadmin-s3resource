@@ -28,7 +28,7 @@ class S3UploadLinkForm(UploadLinkForm):
         else:
             name = self.storage.get_available_name(path)
         
-        redirect_to = self.resource.get_directupload_success_url()
+        redirect_to = self.request.build_absolute_uri(self.resource.get_directupload_success_url())
         url_maker = S3Backend()
         url_maker.update_post_params(targetpath=name, upload_to=self.cleaned_data['upload_to'], redirect_to=redirect_to)
         
@@ -46,7 +46,6 @@ class S3UploadLinkForm(UploadLinkForm):
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.encoding import iri_to_uri
 from django.utils import simplejson as json
 from urllib import quote_plus
 from datetime import datetime
@@ -158,8 +157,6 @@ class S3Backend(object):
         self.options['targetpath'] = targetpath
         self.options['upload_to'] = upload_to
         
-        if redirect_to:
-            redirect_to = iri_to_uri(redirect_to)
         self.options['redirect_to'] = redirect_to
         self.build_post_data()
         #params.update(self.post_data)
