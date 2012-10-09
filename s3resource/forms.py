@@ -35,6 +35,11 @@ class S3UploadLinkForm(UploadLinkForm):
         fields = dict()
         for key, value in url_maker.post_data.iteritems():
             fields[key] = forms.CharField(initial=value, widget=forms.HiddenInput)
+        
+        response_type = self.request.META.get('HTTP_ACCEPT', '')
+        if response_type:
+            fields['response_type'] = forms.CharField(initial=response_type, widget=forms.HiddenInput)
+        
         fields['file'] = forms.FileField()
         form_class = form_factory(fields)
         
