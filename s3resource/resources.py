@@ -16,7 +16,7 @@ class S3StorageResource(StorageResource):
         return kwargs
     
     def get_extra_urls(self):
-        urlpatterns = super(S3StorageResource, self).get_exta_urls()
+        urlpatterns = super(S3StorageResource, self).get_extra_urls()
         
         def wrap(view, cacheable=False):
             return self.as_view(view, cacheable)
