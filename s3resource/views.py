@@ -2,7 +2,7 @@ from django import http
 from django.views.generic import View
 
 from hyperadmin.resources.views import ResourceViewMixin
-from hyperadmin.resources.storage.views import BoundFile, StorageMixin
+from hyperadmin.resources.storages.views import BoundFile, StorageMixin
 
 class S3UploadSuccessView(StorageMixin, ResourceViewMixin, View):
     '''
