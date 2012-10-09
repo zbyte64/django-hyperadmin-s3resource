@@ -67,7 +67,7 @@ BUCKET_NAME         = getattr(settings, 'AWS_STORAGE_BUCKET_NAME', None)
 SECURE_URLS         = getattr(settings, 'AWS_S3_SECURE_URLS', False)
 BUCKET_URL          = getattr(settings, 'AWS_BUCKET_URL',  '%s%s.s3.amazonaws.com' % (('https://' if SECURE_URLS else 'http://'), BUCKET_NAME))
 DEFAULT_ACL         = getattr(settings, 'AWS_DEFAULT_ACL', 'public-read')
-DEFAULT_KEY_PATTERN = getattr(settings, 'AWS_DEFAULT_KEY_PATTERN', '${targetname}')
+DEFAULT_KEY_PATTERN = getattr(settings, 'AWS_DEFAULT_KEY_PATTERN', '${filename}')
 DEFAULT_FORM_TIME   = getattr(settings, 'AWS_DEFAULT_FORM_LIFETIME', 36000) # 10 HOURS
 BUCKET_PREFIX       = getattr(settings, 'AWS_MEDIA_STORAGE_BUCKET_PREFIX', getattr(settings, 'AWS_BUCKET_PREFIX', None))
 
@@ -91,10 +91,10 @@ class S3Backend(object):
         self.options['fileObjName'] = 'file'
     
     def build_post_data(self):
-        if 'folder' in self.options:
-            key = os.path.join(self.options['folder'], DEFAULT_KEY_PATTERN)
-        else:
-            key = DEFAULT_KEY_PATTERN
+        #if 'folder' in self.options:
+        #    key = os.path.join(self.options['folder'], DEFAULT_KEY_PATTERN)
+        #else:
+        #    key = DEFAULT_KEY_PATTERN
         #_set_default_if_none(self.post_data, 'key', key) #this is set by update_post_params
         _set_default_if_none(self.post_data, 'acl', DEFAULT_ACL)
         
@@ -121,21 +121,24 @@ class S3Backend(object):
         
         self.post_data['policy'] = self.policy
         self.post_data['signature'] = self.signature
+        self.post_data['key'] = self.options['targetpath']
     
     def build_conditions(self):
         conditions = list()
         
-        path = self.options['upload_to']
-        if BUCKET_PREFIX:
-            path = os.path.join(BUCKET_PREFIX, path)
+        #path = self.options['upload_to']
+        #if BUCKET_PREFIX:
+        #    path = os.path.join(BUCKET_PREFIX, path)
+        
+        path = self.options['targetpath']
         
         #make s3 happy with uploadify
-        conditions.append(['starts-with', '$targetname', '']) #variable introduced by this package
-        conditions.append(['starts-with', '$targetpath', path])
+        #conditions.append(['starts-with', '$targetname', '']) #variable introduced by this package
+        #conditions.append(['starts-with', '$targetpath', path])
         conditions.append({'success_action_status': '200'})
         
         #real conditions
-        conditions.append(['starts-with', '$key', path])
+        conditions.append(['eq', '$key', path])
         conditions.append({'bucket': self.post_data['bucket']})
         conditions.append({'acl': self.post_data['acl']})
         return conditions
