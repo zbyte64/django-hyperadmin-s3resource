@@ -32,7 +32,7 @@ class S3UploadLinkForm(UploadLinkForm):
         redirect_to = self.request.build_absolute_uri(self.resource.get_directupload_success_url())
         response_type = self.request.META.get('HTTP_ACCEPT', None)
         if response_type:
-            params = {'_HTTP_ACCEPT': response_type}
+            params = {'_HTTP_ACCEPT': 'text/html-iframe-transport;level=1,'+response_type}
             redirect_to = '%s?%s' % (redirect_to, urlencode(params))
         
         url_maker = S3Backend()
