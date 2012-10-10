@@ -1,5 +1,3 @@
-from urllib import urlencode
-
 from django.views.generic import View
 
 from hyperadmin.resources.views import ResourceViewMixin
@@ -18,8 +16,5 @@ class S3UploadSuccessView(StorageMixin, ResourceViewMixin, View):
         bound_file = BoundFile(self.resource.storage, key)
         item = self.resource.get_resource_item(bound_file)
         link = self.resource.get_item_link(item)
-        if '_HTTP_ACCEPT' in self.request.GET:
-            params = {'_HTTP_ACCEPT': self.request.GET['_HTTP_ACCEPT']}
-            link.url = '%s?%s' % (link.url, urlencode(params))
         return self.resource.generate_response(self.get_response_media_type(), self.get_response_type(), link)
 
