@@ -29,7 +29,7 @@ class S3UploadLinkForm(UploadLinkForm):
         else:
             name = self.storage.get_available_name(path)
         
-        redirect_to = self.request.build_absolute_uri(self.resource.get_directupload_success_url())
+        redirect_to = self.request.build_absolute_uri(self.resource.link_prototypes['upload_success'].get_url())
         response_type = self.request.META.get('HTTP_ACCEPT', None)
         if response_type:
             params = {'_HTTP_ACCEPT': 'text/html-iframe-transport;level=1,'+response_type}
@@ -46,7 +46,7 @@ class S3UploadLinkForm(UploadLinkForm):
         form_class = form_factory(fields)
         
         form_kwargs = {'initial':url_maker.post_data}
-        link = self.resource.get_create_link(form_kwargs=form_kwargs, form_class=form_class, url=url_maker.get_target_url(), rel='direct-upload')
+        link = self.resource.link_prototypes['upload'].get_link(form_kwargs=form_kwargs, form_class=form_class, url=url_maker.get_target_url(), rel='direct-upload')
         return link
 
 
