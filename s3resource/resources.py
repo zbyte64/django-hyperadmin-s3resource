@@ -1,4 +1,4 @@
-from hyperadmin.resources.storages.storages import StorageResource
+from hyperadmin.resources.storages import StorageResource
 
 from s3resource.forms import S3UploadLinkForm
 from s3resource.endpoints import S3UploadSuccessEndpoint

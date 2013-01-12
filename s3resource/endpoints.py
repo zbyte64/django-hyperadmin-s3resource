@@ -1,4 +1,5 @@
-from hyperadmin.endpoints import LinkPrototype, Endpoint
+from hyperadmin.links import LinkPrototype
+from hyperadmin.resources.endpoints import ResourceEndpoint
 from hyperadmin.resources.storages.endpoints import BoundFile
 
 
@@ -16,7 +17,7 @@ class UploadLinkSuccessPrototype(LinkPrototype):
     def on_success(self, link):
         return link
 
-class S3UploadSuccessEndpoint(Endpoint):
+class S3UploadSuccessEndpoint(ResourceEndpoint):
     '''
     Redirects to the appropriate REST path based on the key
     '''
