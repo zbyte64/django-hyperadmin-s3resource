@@ -26,8 +26,16 @@ class S3UploadSuccessEndpoint(ResourceEndpoint):
     name_suffix = 'upload_success'
     url_suffix = r'^upload-success/$'
     
+    prototype_method_map = {
+        'GET': 'upload_success',
+    }
+    
+    success_prototype = UploadLinkSuccessPrototype
+    
     def get_link_prototypes(self):
-        return {'GET':UploadLinkSuccessPrototype(endpoint=self, name='upload_success'),}
+        return [
+            (self.success_prototype, {'name':'upload_success'}),
+        ]
     
     def get(self, request, *args, **kwargs):
         key = self.request.GET.get('key', None)
